@@ -73,6 +73,11 @@
 
       <p class="hint">個体1で「測定者」「計測記録者」を選ぶと、未入力の個体へ自動反映します。個体ごとに後から変更できます。</p>
 
+      <div class="collapse-controls">
+        <button type="button" class="small secondary" id="collapseAllMeasurement">すべて閉じる</button>
+        <button type="button" class="small secondary" id="expandAllMeasurement">すべて開く</button>
+      </div>
+
       <div id="measurementAnimals"></div>
 
       <div class="nav-row">
@@ -92,6 +97,11 @@
       <div class="animal-summary" id="dosingCageSummary"></div>
 
       <p class="hint">個体1で「投与部位」を選ぶと、未入力の個体へ自動反映します。個体ごとに後から変更できます。</p>
+
+      <div class="collapse-controls">
+        <button type="button" class="small secondary" id="collapseAllDosing">すべて閉じる</button>
+        <button type="button" class="small secondary" id="expandAllDosing">すべて開く</button>
+      </div>
 
       <div id="dosingAnimals"></div>
 
@@ -125,11 +135,16 @@
 </main>
 
 <template id="measurementAnimalTemplate">
-  <div class="animal-card">
-    <div class="animal-title-row">
-      <h3 class="animal-title"></h3>
-      <button type="button" class="small danger-outline remove-animal">削除</button>
-    </div>
+  <details class="animal-card animal-details" open>
+    <summary class="animal-summary-row">
+      <span class="animal-title"></span>
+      <span class="animal-summary-text"></span>
+    </summary>
+    <div class="animal-body">
+      <div class="animal-title-row">
+        <span></span>
+        <button type="button" class="small danger-outline remove-animal">削除</button>
+      </div>
 
     <label>色
       <select class="m-color">
@@ -166,12 +181,17 @@
 
     <label>体重<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-weight"><span>g</span></div></label>
     <label>計測備考<textarea rows="3" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
-  </div>
+    </div>
+  </details>
 </template>
 
 <template id="dosingAnimalTemplate">
-  <div class="animal-card">
-    <h3 class="animal-title"></h3>
+  <details class="animal-card animal-details" open>
+    <summary class="animal-summary-row">
+      <span class="animal-title"></span>
+      <span class="animal-summary-text"></span>
+    </summary>
+    <div class="animal-body">
     <div class="mini-summary"></div>
 
     <fieldset><legend>投与</legend>
@@ -184,7 +204,8 @@
 
     <div class="dosing-fields"></div>
     <label>投与備考<textarea rows="3" class="d-memo" placeholder="必要なときだけ入力"></textarea></label>
-  </div>
+    </div>
+  </details>
 </template>
 
 <script src="app.js"></script>

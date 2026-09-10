@@ -37,6 +37,15 @@ function renderMeasurement(){
    const node=$("measurementAnimalTemplate").content.cloneNode(true);
    const root=node.querySelector(".animal-card");
    root.querySelector(".animal-title").textContent=`個体 ${index+1}`;
+   const summaryText=root.querySelector(".animal-summary-text");
+   const updateMeasurementSummary=()=>{
+     const parts=[];
+     if(a.color) parts.push(a.color);
+     if(a.weight) parts.push(`体重 ${a.weight} g`);
+     if(a.measurer) parts.push(a.measurer);
+     summaryText.textContent=parts.join("｜") || "未入力";
+   };
+   updateMeasurementSummary();
    root.querySelector(".m-color").value=a.color;
    root.querySelector(".m-weeks").value=a.infectionWeeks;
    root.querySelector(".m-measurer").innerHTML=personOptions(a.measurer);
@@ -53,6 +62,7 @@ function renderMeasurement(){
      const e=root.querySelector(sel);
      ["input","change"].forEach(evt=>e.addEventListener(evt,()=>{
        const old=a[key]; a[key]=transform(e.value);
+       updateMeasurementSummary();
        if((key==="measurer"||key==="recorder")&&index===0){
          fillBlankSiblings(currentMeasurementCage,key,a[key],index);
          renderMeasurement();
@@ -96,10 +106,20 @@ function renderDosing(){
    const node=$("dosingAnimalTemplate").content.cloneNode(true);
    const root=node.querySelector(".animal-card");
    root.querySelector(".animal-title").textContent=`個体 ${index+1}`;
+   const dosingSummaryText=root.querySelector(".animal-summary-text");
+   const refreshDosingSummary=()=>{
+     const parts=[];
+     if(a.color) parts.push(a.color);
+     if(a.dosingPresence) parts.push(`投与${a.dosingPresence}`);
+     if(a.dosingDrug) parts.push(a.dosingDrug);
+     dosingSummaryText.textContent=parts.join("｜") || "未入力";
+   };
+   refreshDosingSummary();
    root.querySelector(".mini-summary").textContent=`${a.color||"色未選択"}｜感染週数 ${a.infectionWeeks||"未入力"}｜測定者 ${a.measurer||"未選択"}｜記録者 ${a.recorder||"未選択"}`;
    const presence=root.querySelector(".dosing-presence");
    setupSegmented(presence,v=>{
      a.dosingPresence=v;
+     refreshDosingSummary();
      if(v==="なし")["isoDose","syringesUsed","syringesDiscarded","dosingPeriod","dosingSite","dosingDrug","drugConcentration"].forEach(k=>a[k]="");
      renderDosing();
    });
@@ -112,6 +132,7 @@ function renderDosing(){
        const e=fields.querySelector(sel);e.value=a[key]??"";
        ["input","change"].forEach(evt=>e.addEventListener(evt,()=>{
          a[key]=transform(e.value);
+         refreshDosingSummary();
          if(key==="dosingSite"&&index===0){
            fillBlankSiblings(currentDosingCage,key,a[key],index);
            renderDosing();
@@ -169,3 +190,11 @@ async function importBackup(e){const f=e.target.files?.[0];if(!f)return;try{cons
 function downloadBlob(c,n,t){const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 $("csvButton").addEventListener("click",exportCSV);$("backupButton").addEventListener("click",exportBackup);$("restoreInput").addEventListener("change",importBackup);
 $("commonDate").valueAsDate=new Date();renderSavedTable();
+
+function setAllDetails(containerId, open){
+  document.querySelectorAll(`#${containerId} .animal-details`).forEach(d=>d.open=open);
+}
+$("collapseAllMeasurement").addEventListener("click",()=>setAllDetails("measurementAnimals",false));
+$("expandAllMeasurement").addEventListener("click",()=>setAllDetails("measurementAnimals",true));
+$("collapseAllDosing").addEventListener("click",()=>setAllDetails("dosingAnimals",false));
+$("expandAllDosing").addEventListener("click",()=>setAllDetails("dosingAnimals",true));
