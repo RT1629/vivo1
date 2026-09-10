@@ -2,122 +2,155 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>実験データ管理</title>
-
-  <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-  <div class="container">
-
-    <h1>実験データ管理</h1>
-
-    <label>
-      日付
-      <input type="date" id="date">
-    </label>
-
-    <label>
-      ケージ
-      <input type="number" id="cage">
-    </label>
-
-    <label>
-      Lot
-      <input type="text" id="lot" placeholder="例：赤 OA">
-    </label>
-
-    <label>
-      Control
-      <input type="number" step="0.01" id="control">
-    </label>
-
-    <label>
-      感染側
-      <input type="number" step="0.01" id="infection">
-    </label>
-
-    <label>
-      体重
-      <input type="number" step="0.01" id="weight">
-    </label>
-
-    <label>
-      <input type="checkbox" id="water">
-      水替え
-    </label>
-
-    <label>
-      <input type="checkbox" id="food">
-      餌
-    </label>
-
-    <label>
-      <input type="checkbox" id="bedding">
-      床敷き
-    </label>
-
-    <label>
-      備考
-      <textarea id="memo"></textarea>
-    </label>
-
-    <button id="saveButton">
-      保存
-    </button>
-
-    <button id="csvButton">
-      CSV出力
-    </button>
-
-    <h2>保存済みデータ</h2>
-
-    <div class="table-wrapper">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>日付</th>
-            <th>ケージ</th>
-            <th>Lot</th>
-            <th>Control</th>
-            <th>感染側</th>
-            <th>体重</th>
-            <th>水替え</th>
-            <th>餌</th>
-            <th>床敷き</th>
-            <th>備考</th>
-          </tr>
-        </thead>
-
-        <tbody id="dataTable">
-        </tbody>
-
-      </table>
-
+<main class="app">
+  <header class="app-header">
+    <div>
+      <h1>実験データ管理</h1>
+      <p>入力データはこの端末内に保存されます。</p>
     </div>
+    <div id="stepIndicator" class="step-indicator">Step 1 / 3</div>
+  </header>
 
+  <section id="stepCommon" class="screen active">
+    <div class="card">
+      <h2>① 共通情報</h2>
+      <label>年月日<input type="date" id="commonDate"></label>
+      <label>EXP No.<input type="text" id="commonExpNo" placeholder="例：EXP-12"></label>
+
+      <fieldset><legend>水</legend>
+        <div class="segmented" data-group="water">
+          <button type="button" data-value="">未選択</button>
+          <button type="button" data-value="交換済み">交換済み</button>
+          <button type="button" data-value="未交換">未交換</button>
+        </div>
+      </fieldset>
+
+      <fieldset><legend>餌</legend>
+        <div class="segmented" data-group="food">
+          <button type="button" data-value="">未選択</button>
+          <button type="button" data-value="追加済み">追加済み</button>
+          <button type="button" data-value="未追加">未追加</button>
+        </div>
+      </fieldset>
+
+      <fieldset><legend>床敷き</legend>
+        <div class="segmented" data-group="bedding">
+          <button type="button" data-value="">未選択</button>
+          <button type="button" data-value="交換済み">交換済み</button>
+          <button type="button" data-value="未交換">未交換</button>
+        </div>
+      </fieldset>
+
+      <label>共通備考<textarea id="commonMemo" rows="4" placeholder="必要なときだけ入力"></textarea></label>
+      <button type="button" id="toMeasurement">次へ：計測</button>
+    </div>
+  </section>
+
+  <section id="stepMeasurement" class="screen">
+    <div class="card">
+      <div class="screen-title-row">
+        <div><h2>② 計測</h2><p id="measurementProgress"></p></div>
+        <button type="button" class="small secondary" id="addAnimalMeasurement">＋ 個体追加</button>
+      </div>
+      <div id="measurementForm"></div>
+      <div class="nav-row">
+        <button type="button" class="secondary" id="measurementPrev">← 前の個体</button>
+        <button type="button" class="secondary" id="measurementNext">次の個体 →</button>
+      </div>
+      <button type="button" id="toDosing">計測を終えて投与へ</button>
+      <button type="button" class="secondary" id="backToCommon">← 共通情報に戻る</button>
+    </div>
+  </section>
+
+  <section id="stepDosing" class="screen">
+    <div class="card">
+      <h2>③ 投与</h2>
+      <p id="dosingProgress"></p>
+      <div class="animal-summary" id="dosingAnimalSummary"></div>
+
+      <fieldset><legend>投与</legend>
+        <div class="segmented" id="dosingPresence">
+          <button type="button" data-value="">未選択</button>
+          <button type="button" data-value="あり">あり</button>
+          <button type="button" data-value="なし">なし</button>
+        </div>
+      </fieldset>
+
+      <div id="dosingFields"></div>
+      <label>投与備考<textarea id="dosingMemo" rows="4" placeholder="必要なときだけ入力"></textarea></label>
+
+      <div class="nav-row">
+        <button type="button" class="secondary" id="dosingPrev">← 前の個体</button>
+        <button type="button" class="secondary" id="dosingNext">次の個体 →</button>
+      </div>
+      <button type="button" id="saveDay">この日のデータを保存</button>
+      <button type="button" class="secondary" id="backToMeasurement">← 計測に戻る</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>保存済みデータ</h2>
+    <div class="actions">
+      <button type="button" id="csvButton" class="secondary">CSV出力（Excel用）</button>
+      <button type="button" id="backupButton" class="secondary">バックアップ出力</button>
+      <label class="file-label">バックアップ読込<input type="file" id="restoreInput" accept=".json,application/json"></label>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr>
+          <th>年月日</th><th>EXP No.</th><th>ケージ</th><th>色</th>
+          <th>右厚</th><th>右幅</th><th>左厚</th><th>左幅</th><th>体重</th><th>投与</th><th></th>
+        </tr></thead>
+        <tbody id="savedTable"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<template id="measurementTemplate">
+  <div class="animal-card">
+    <h3 class="animal-title"></h3>
+    <label>ケージ番号<input type="number" inputmode="numeric" class="m-cage"></label>
+    <label>色
+      <select class="m-color">
+        <option value="">未選択</option><option value="無印">無印</option><option value="赤">赤</option>
+        <option value="青">青</option><option value="緑">緑</option><option value="橙">橙</option>
+      </select>
+    </label>
+    <label>感染週数<input type="number" inputmode="numeric" class="m-weeks"></label>
+    <div class="grid2">
+      <label>測定者<input type="text" class="m-measurer" list="personNames"></label>
+      <label>計測記録者<input type="text" class="m-recorder" list="personNames"></label>
+    </div>
+    <label>計測時イソフルラン量
+      <div class="unit-input"><input type="number" inputmode="numeric" step="1" class="m-iso-measure"><span>µL</span></div>
+    </label>
+    <div class="grid2">
+      <label>右足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-thick"><span>mm</span></div></label>
+      <label>右足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-width"><span>mm</span></div></label>
+      <label>左足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-thick"><span>mm</span></div></label>
+      <label>左足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-width"><span>mm</span></div></label>
+    </div>
+    <label>体重<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-weight"><span>g</span></div></label>
+    <label>計測備考<textarea rows="4" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
+    <button type="button" class="danger-outline remove-animal">この個体を削除</button>
   </div>
+</template>
 
-  <script src="app.js"></script>
+<datalist id="personNames"></datalist>
 <script src="app.js"></script>
-
 <script>
-
 if ("serviceWorker" in navigator) {
-
-  navigator.serviceWorker.register(
-    "service-worker.js"
-  );
-
+  window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(console.error));
 }
-
 </script>
-
 </body>
 </html>
