@@ -57,14 +57,29 @@
   <section id="stepMeasurement" class="screen">
     <div class="card">
       <div class="screen-title-row">
-        <div><h2>② 計測</h2><p id="measurementProgress"></p></div>
-        <button type="button" class="small secondary" id="addAnimalMeasurement">＋ 個体追加</button>
+        <div>
+          <h2>② 計測</h2>
+          <p id="measurementCageProgress"></p>
+        </div>
+        <button type="button" class="small secondary" id="addCageMeasurement">＋ ケージ追加</button>
       </div>
-      <div id="measurementForm"></div>
+
+      <div class="cage-header">
+        <label>ケージ番号
+          <input type="number" inputmode="numeric" id="measurementCageNumber">
+        </label>
+        <button type="button" class="small secondary" id="addAnimalMeasurement">＋ このケージに個体追加</button>
+      </div>
+
+      <p class="hint">個体1で「測定者」「計測記録者」を選ぶと、未入力の個体へ自動反映します。個体ごとに後から変更できます。</p>
+
+      <div id="measurementAnimals"></div>
+
       <div class="nav-row">
-        <button type="button" class="secondary" id="measurementPrev">← 前の個体</button>
-        <button type="button" class="secondary" id="measurementNext">次の個体 →</button>
+        <button type="button" class="secondary" id="measurementPrevCage">← 前のケージ</button>
+        <button type="button" class="secondary" id="measurementNextCage">次のケージ →</button>
       </div>
+
       <button type="button" id="toDosing">計測を終えて投与へ</button>
       <button type="button" class="secondary" id="backToCommon">← 共通情報に戻る</button>
     </div>
@@ -73,24 +88,18 @@
   <section id="stepDosing" class="screen">
     <div class="card">
       <h2>③ 投与</h2>
-      <p id="dosingProgress"></p>
-      <div class="animal-summary" id="dosingAnimalSummary"></div>
+      <p id="dosingCageProgress"></p>
+      <div class="animal-summary" id="dosingCageSummary"></div>
 
-      <fieldset><legend>投与</legend>
-        <div class="segmented" id="dosingPresence">
-          <button type="button" data-value="">未選択</button>
-          <button type="button" data-value="あり">あり</button>
-          <button type="button" data-value="なし">なし</button>
-        </div>
-      </fieldset>
+      <p class="hint">個体1で「投与部位」を選ぶと、未入力の個体へ自動反映します。個体ごとに後から変更できます。</p>
 
-      <div id="dosingFields"></div>
-      <label>投与備考<textarea id="dosingMemo" rows="4" placeholder="必要なときだけ入力"></textarea></label>
+      <div id="dosingAnimals"></div>
 
       <div class="nav-row">
-        <button type="button" class="secondary" id="dosingPrev">← 前の個体</button>
-        <button type="button" class="secondary" id="dosingNext">次の個体 →</button>
+        <button type="button" class="secondary" id="dosingPrevCage">← 前のケージ</button>
+        <button type="button" class="secondary" id="dosingNextCage">次のケージ →</button>
       </div>
+
       <button type="button" id="saveDay">この日のデータを保存</button>
       <button type="button" class="secondary" id="backToMeasurement">← 計測に戻る</button>
     </div>
@@ -115,37 +124,69 @@
   </section>
 </main>
 
-<template id="measurementTemplate">
+<template id="measurementAnimalTemplate">
   <div class="animal-card">
-    <h3 class="animal-title"></h3>
-    <label>ケージ番号<input type="number" inputmode="numeric" class="m-cage"></label>
+    <div class="animal-title-row">
+      <h3 class="animal-title"></h3>
+      <button type="button" class="small danger-outline remove-animal">削除</button>
+    </div>
+
     <label>色
       <select class="m-color">
-        <option value="">未選択</option><option value="無印">無印</option><option value="赤">赤</option>
-        <option value="青">青</option><option value="緑">緑</option><option value="橙">橙</option>
+        <option value="">未選択</option>
+        <option value="無印">無印</option>
+        <option value="赤">赤</option>
+        <option value="青">青</option>
+        <option value="緑">緑</option>
+        <option value="橙">橙</option>
       </select>
     </label>
+
     <label>感染週数<input type="number" inputmode="numeric" class="m-weeks"></label>
+
     <div class="grid2">
-      <label>測定者<input type="text" class="m-measurer" list="personNames"></label>
-      <label>計測記録者<input type="text" class="m-recorder" list="personNames"></label>
+      <label>測定者
+        <select class="m-measurer person-select"></select>
+      </label>
+      <label>計測記録者
+        <select class="m-recorder person-select"></select>
+      </label>
     </div>
+
     <label>計測時イソフルラン量
       <div class="unit-input"><input type="number" inputmode="numeric" step="1" class="m-iso-measure"><span>µL</span></div>
     </label>
+
     <div class="grid2">
       <label>右足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-thick"><span>mm</span></div></label>
       <label>右足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-width"><span>mm</span></div></label>
       <label>左足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-thick"><span>mm</span></div></label>
       <label>左足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-width"><span>mm</span></div></label>
     </div>
+
     <label>体重<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-weight"><span>g</span></div></label>
-    <label>計測備考<textarea rows="4" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
-    <button type="button" class="danger-outline remove-animal">この個体を削除</button>
+    <label>計測備考<textarea rows="3" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
   </div>
 </template>
 
-<datalist id="personNames"></datalist>
+<template id="dosingAnimalTemplate">
+  <div class="animal-card">
+    <h3 class="animal-title"></h3>
+    <div class="mini-summary"></div>
+
+    <fieldset><legend>投与</legend>
+      <div class="segmented dosing-presence">
+        <button type="button" data-value="">未選択</button>
+        <button type="button" data-value="あり">あり</button>
+        <button type="button" data-value="なし">なし</button>
+      </div>
+    </fieldset>
+
+    <div class="dosing-fields"></div>
+    <label>投与備考<textarea rows="3" class="d-memo" placeholder="必要なときだけ入力"></textarea></label>
+  </div>
+</template>
+
 <script src="app.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
