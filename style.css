@@ -21,27 +21,27 @@ button{background:#111;color:#fff}button.secondary,.file-label{background:#ececf
 .table-wrapper{overflow-x:auto}table{width:100%;min-width:900px;border-collapse:collapse}th,td{padding:8px;border-bottom:1px solid #d8d8de;text-align:left;white-space:nowrap;font-size:14px}
 @media(max-width:620px){.grid2{grid-template-columns:1fr}.app-header h1{font-size:24px}.cage-header{display:block}.cage-header button{margin-bottom:12px}}
 
+
 .collapse-controls{display:flex;gap:8px;justify-content:flex-end;margin:8px 0 10px}
-.animal-details{padding:0;overflow:hidden}
-.animal-details[open]{padding-bottom:0}
-.animal-summary-row{
+.animal-panel{padding:0;overflow:hidden}
+.animal-toggle{
+  width:100%;
   display:grid;
-  grid-template-columns:auto 1fr;
-  gap:10px;
+  grid-template-columns:auto auto 1fr;
+  gap:9px;
   align-items:center;
+  text-align:left;
   padding:14px;
-  cursor:pointer;
-  list-style:none;
-  font-weight:700;
+  border:0;
+  border-radius:0;
   background:#fafafa;
+  color:#111;
 }
-.animal-summary-row::-webkit-details-marker{display:none}
-.animal-summary-row::before{
-  content:"▶";
+.animal-toggle .toggle-arrow{
   font-size:12px;
   transition:transform .15s ease;
 }
-.animal-details[open]>.animal-summary-row::before{transform:rotate(90deg)}
+.animal-panel.collapsed .toggle-arrow{transform:rotate(-90deg)}
 .animal-summary-text{
   color:#666;
   font-size:13px;
@@ -49,8 +49,9 @@ button{background:#111;color:#fff}button.secondary,.file-label{background:#ececf
   text-align:right;
 }
 .animal-body{padding:14px;border-top:1px solid #e3e3e8}
+.animal-panel.collapsed .animal-body{display:none}
 @media(max-width:620px){
-  .animal-summary-row{grid-template-columns:auto 1fr}
+  .animal-toggle{grid-template-columns:auto auto 1fr}
   .animal-summary-text{text-align:left}
   .collapse-controls{justify-content:stretch}
   .collapse-controls button{flex:1}

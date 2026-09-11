@@ -135,77 +135,81 @@
 </main>
 
 <template id="measurementAnimalTemplate">
-  <details class="animal-card animal-details" open>
-    <summary class="animal-summary-row">
+  <div class="animal-card animal-panel">
+    <button type="button" class="animal-toggle">
+      <span class="toggle-arrow">▼</span>
       <span class="animal-title"></span>
       <span class="animal-summary-text"></span>
-    </summary>
+    </button>
+
     <div class="animal-body">
       <div class="animal-title-row">
         <span></span>
         <button type="button" class="small danger-outline remove-animal">削除</button>
       </div>
 
-    <label>色
-      <select class="m-color">
-        <option value="">未選択</option>
-        <option value="無印">無印</option>
-        <option value="赤">赤</option>
-        <option value="青">青</option>
-        <option value="緑">緑</option>
-        <option value="橙">橙</option>
-      </select>
-    </label>
-
-    <label>感染週数<input type="number" inputmode="numeric" class="m-weeks"></label>
-
-    <div class="grid2">
-      <label>測定者
-        <select class="m-measurer person-select"></select>
+      <label>色
+        <select class="m-color">
+          <option value="">未選択</option>
+          <option value="無印">無印</option>
+          <option value="赤">赤</option>
+          <option value="青">青</option>
+          <option value="緑">緑</option>
+          <option value="橙">橙</option>
+        </select>
       </label>
-      <label>計測記録者
-        <select class="m-recorder person-select"></select>
+
+      <label>感染週数<input type="number" inputmode="numeric" class="m-weeks"></label>
+
+      <div class="grid2">
+        <label>測定者
+          <select class="m-measurer person-select"></select>
+        </label>
+        <label>計測記録者
+          <select class="m-recorder person-select"></select>
+        </label>
+      </div>
+
+      <label>計測時イソフルラン量
+        <div class="unit-input"><input type="number" inputmode="numeric" step="1" class="m-iso-measure"><span>µL</span></div>
       </label>
-    </div>
 
-    <label>計測時イソフルラン量
-      <div class="unit-input"><input type="number" inputmode="numeric" step="1" class="m-iso-measure"><span>µL</span></div>
-    </label>
+      <div class="grid2">
+        <label>右足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-thick"><span>mm</span></div></label>
+        <label>右足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-width"><span>mm</span></div></label>
+        <label>左足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-thick"><span>mm</span></div></label>
+        <label>左足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-width"><span>mm</span></div></label>
+      </div>
 
-    <div class="grid2">
-      <label>右足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-thick"><span>mm</span></div></label>
-      <label>右足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-r-width"><span>mm</span></div></label>
-      <label>左足厚さ<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-thick"><span>mm</span></div></label>
-      <label>左足幅<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-l-width"><span>mm</span></div></label>
+      <label>体重<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-weight"><span>g</span></div></label>
+      <label>計測備考<textarea rows="3" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
     </div>
-
-    <label>体重<div class="unit-input"><input type="number" inputmode="decimal" step="0.01" class="m-weight"><span>g</span></div></label>
-    <label>計測備考<textarea rows="3" class="m-memo" placeholder="必要なときだけ入力"></textarea></label>
-    </div>
-  </details>
+  </div>
 </template>
 
 <template id="dosingAnimalTemplate">
-  <details class="animal-card animal-details" open>
-    <summary class="animal-summary-row">
+  <div class="animal-card animal-panel">
+    <button type="button" class="animal-toggle">
+      <span class="toggle-arrow">▼</span>
       <span class="animal-title"></span>
       <span class="animal-summary-text"></span>
-    </summary>
+    </button>
+
     <div class="animal-body">
-    <div class="mini-summary"></div>
+      <div class="mini-summary"></div>
 
-    <fieldset><legend>投与</legend>
-      <div class="segmented dosing-presence">
-        <button type="button" data-value="">未選択</button>
-        <button type="button" data-value="あり">あり</button>
-        <button type="button" data-value="なし">なし</button>
-      </div>
-    </fieldset>
+      <fieldset><legend>投与</legend>
+        <div class="segmented dosing-presence">
+          <button type="button" data-value="">未選択</button>
+          <button type="button" data-value="あり">あり</button>
+          <button type="button" data-value="なし">なし</button>
+        </div>
+      </fieldset>
 
-    <div class="dosing-fields"></div>
-    <label>投与備考<textarea rows="3" class="d-memo" placeholder="必要なときだけ入力"></textarea></label>
+      <div class="dosing-fields"></div>
+      <label>投与備考<textarea rows="3" class="d-memo" placeholder="必要なときだけ入力"></textarea></label>
     </div>
-  </details>
+  </div>
 </template>
 
 <script src="app.js"></script>

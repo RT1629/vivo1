@@ -46,6 +46,8 @@ function renderMeasurement(){
      summaryText.textContent=parts.join("｜") || "未入力";
    };
    updateMeasurementSummary();
+   const toggleButton=root.querySelector(".animal-toggle");
+   toggleButton.addEventListener("click",()=>root.classList.toggle("collapsed"));
    root.querySelector(".m-color").value=a.color;
    root.querySelector(".m-weeks").value=a.infectionWeeks;
    root.querySelector(".m-measurer").innerHTML=personOptions(a.measurer);
@@ -115,6 +117,8 @@ function renderDosing(){
      dosingSummaryText.textContent=parts.join("｜") || "未入力";
    };
    refreshDosingSummary();
+   const toggleButton=root.querySelector(".animal-toggle");
+   toggleButton.addEventListener("click",()=>root.classList.toggle("collapsed"));
    root.querySelector(".mini-summary").textContent=`${a.color||"色未選択"}｜感染週数 ${a.infectionWeeks||"未入力"}｜測定者 ${a.measurer||"未選択"}｜記録者 ${a.recorder||"未選択"}`;
    const presence=root.querySelector(".dosing-presence");
    setupSegmented(presence,v=>{
@@ -191,10 +195,12 @@ function downloadBlob(c,n,t){const b=new Blob([c],{type:t}),u=URL.createObjectUR
 $("csvButton").addEventListener("click",exportCSV);$("backupButton").addEventListener("click",exportBackup);$("restoreInput").addEventListener("change",importBackup);
 $("commonDate").valueAsDate=new Date();renderSavedTable();
 
-function setAllDetails(containerId, open){
-  document.querySelectorAll(`#${containerId} .animal-details`).forEach(d=>d.open=open);
+function setAllPanels(containerId, open){
+  document.querySelectorAll(`#${containerId} .animal-panel`).forEach(panel=>{
+    panel.classList.toggle("collapsed", !open);
+  });
 }
-$("collapseAllMeasurement").addEventListener("click",()=>setAllDetails("measurementAnimals",false));
-$("expandAllMeasurement").addEventListener("click",()=>setAllDetails("measurementAnimals",true));
-$("collapseAllDosing").addEventListener("click",()=>setAllDetails("dosingAnimals",false));
-$("expandAllDosing").addEventListener("click",()=>setAllDetails("dosingAnimals",true));
+$("collapseAllMeasurement").addEventListener("click",()=>setAllPanels("measurementAnimals",false));
+$("expandAllMeasurement").addEventListener("click",()=>setAllPanels("measurementAnimals",true));
+$("collapseAllDosing").addEventListener("click",()=>setAllPanels("dosingAnimals",false));
+$("expandAllDosing").addEventListener("click",()=>setAllPanels("dosingAnimals",true));
