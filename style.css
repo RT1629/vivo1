@@ -56,3 +56,8 @@ button{background:#111;color:#fff}button.secondary,.file-label{background:#ececf
   .collapse-controls{justify-content:stretch}
   .collapse-controls button{flex:1}
 }
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.modal-overlay.hidden{display:none}
+.modal-card{width:min(460px,100%);background:#fff;border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.22)}
+.modal-card h2{margin:0 0 8px}.modal-card p{margin:0 0 16px;color:#444}.modal-actions{display:grid;gap:10px}
