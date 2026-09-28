@@ -118,20 +118,24 @@
 
   <section class="card">
     <h2>保存済みデータ</h2>
+
+    <div class="saved-toolbar">
+      <div class="selection-status" id="selectionStatus">0件選択中</div>
+      <div class="saved-toolbar-buttons">
+        <button type="button" id="selectAllSaved" class="small secondary">すべて選択</button>
+        <button type="button" id="clearSavedSelection" class="small secondary">選択解除</button>
+      </div>
+    </div>
+
     <div class="actions">
-      <button type="button" id="csvButton" class="secondary">CSV出力（Excel用）</button>
+      <button type="button" id="selectedCsvButton">選択したデータをCSV出力</button>
+      <button type="button" id="csvButton" class="secondary">全データをCSV出力</button>
       <button type="button" id="backupButton" class="secondary">バックアップ出力</button>
       <label class="file-label">バックアップ読込<input type="file" id="restoreInput" accept=".json,application/json"></label>
     </div>
-    <div class="table-wrapper">
-      <table>
-        <thead><tr>
-          <th>年月日</th><th>EXP No.</th><th>ケージ</th><th>色</th>
-          <th>右厚</th><th>右幅</th><th>左厚</th><th>左幅</th><th>体重</th><th>投与</th><th></th>
-        </tr></thead>
-        <tbody id="savedTable"></tbody>
-      </table>
-    </div>
+
+    <p class="hint">日付ごとにまとまっています。日付左のチェックでその日のデータを一括選択、各行のチェックで個別選択できます。</p>
+    <div id="savedGroups"></div>
   </section>
 </main>
 

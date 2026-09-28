@@ -2,6 +2,7 @@ const STORAGE_KEY="experimentRecords_v3";
 const PERSONS=["","渡邊　周一","髙橋　里津","臼井　淳真","島田　港","濱野　稜太","高山　佳大"];
 const DEFAULT_COLORS=["赤","青","緑","橙","白"];
 let savedRecords=loadJSON(STORAGE_KEY,[]);
+let selectedRecordIds=new Set();
 let session=createEmptySession();
 let selectedCommon={water:"",food:"",bedding:""};
 let currentMeasurementCage=0,currentDosingCage=0;
@@ -200,18 +201,105 @@ function saveCurrentDay(){
 }
 $("saveDay").addEventListener("click",saveCurrentDay);
 
-function renderSavedTable(){const t=$("savedTable");t.innerHTML="";[...savedRecords].reverse().forEach(r=>{const tr=document.createElement("tr");[r.date,r.expNo,r.cage,r.color,r.rightThickness,r.rightWidth,r.leftThickness,r.leftWidth,r.weight,r.dosingPresence].forEach(v=>{const td=document.createElement("td");td.textContent=v??"";tr.appendChild(td)});const td=document.createElement("td"),b=document.createElement("button");b.textContent="削除";b.className="small secondary";b.addEventListener("click",()=>{if(confirm("この1行を削除しますか？")){savedRecords=savedRecords.filter(x=>x.id!==r.id);saveJSON(STORAGE_KEY,savedRecords);renderSavedTable()}});td.appendChild(b);tr.appendChild(td);t.appendChild(tr)})}
+function renderSavedTable(){
+ const host=$("savedGroups");
+ host.innerHTML="";
+
+ if(savedRecords.length===0){
+   host.innerHTML='<p class="hint">保存済みデータはありません。</p>';
+   updateSelectionStatus();
+   return;
+ }
+
+ const groups={};
+ savedRecords.forEach(r=>{
+   const key=r.date||"日付未入力";
+   if(!groups[key])groups[key]=[];
+   groups[key].push(r);
+ });
+
+ const dates=Object.keys(groups).sort((a,b)=>{
+   if(a==="日付未入力")return 1;
+   if(b==="日付未入力")return -1;
+   return b.localeCompare(a);
+ });
+
+ dates.forEach(date=>{
+   const records=groups[date];
+   const group=document.createElement("div");
+   group.className="saved-date-group";
+
+   const header=document.createElement("div");
+   header.className="saved-date-header";
+
+   const dayCheck=document.createElement("input");
+   dayCheck.type="checkbox";
+   dayCheck.setAttribute("aria-label",`${date} のデータをすべて選択`);
+   const selectedCount=records.filter(r=>selectedRecordIds.has(r.id)).length;
+   dayCheck.checked=selectedCount===records.length && records.length>0;
+   dayCheck.indeterminate=selectedCount>0 && selectedCount<records.length;
+   dayCheck.addEventListener("change",()=>{
+     records.forEach(r=>dayCheck.checked?selectedRecordIds.add(r.id):selectedRecordIds.delete(r.id));
+     renderSavedTable();
+   });
+
+   const toggle=document.createElement("button");
+   toggle.type="button"; toggle.className="saved-date-toggle"; toggle.textContent="▼";
+   toggle.setAttribute("aria-label",`${date} の表示を開閉`);
+   toggle.addEventListener("click",()=>group.classList.toggle("collapsed"));
+
+   const title=document.createElement("div"); title.className="saved-date-title"; title.textContent=date;
+   const meta=document.createElement("div"); meta.className="saved-date-meta";
+   const expNos=[...new Set(records.map(r=>r.expNo).filter(Boolean))];
+   meta.textContent=`${records.length}匹${expNos.length?`｜EXP No. ${expNos.join(", ")}`:""}`;
+   header.append(dayCheck,toggle,title,meta);
+
+   const body=document.createElement("div"); body.className="saved-date-body";
+   const wrap=document.createElement("div"); wrap.className="saved-table-wrap";
+   const table=document.createElement("table"); table.className="saved-record-table";
+   table.innerHTML=`<thead><tr><th>選択</th><th>EXP No.</th><th>ケージ</th><th>色</th><th>右厚</th><th>右幅</th><th>左厚</th><th>左幅</th><th>体重</th><th>投与</th><th></th></tr></thead>`;
+   const tbody=document.createElement("tbody");
+
+   records.forEach(r=>{
+     const tr=document.createElement("tr");
+     const selectTd=document.createElement("td");
+     const check=document.createElement("input"); check.type="checkbox"; check.checked=selectedRecordIds.has(r.id);
+     check.setAttribute("aria-label",`${date} ${r.color||""} を選択`);
+     check.addEventListener("change",()=>{check.checked?selectedRecordIds.add(r.id):selectedRecordIds.delete(r.id);renderSavedTable()});
+     selectTd.appendChild(check); tr.appendChild(selectTd);
+     [r.expNo,r.cage,r.color,r.rightThickness,r.rightWidth,r.leftThickness,r.leftWidth,r.weight,r.dosingPresence].forEach(v=>{const td=document.createElement("td");td.textContent=v??"";tr.appendChild(td)});
+     const actionTd=document.createElement("td"); const del=document.createElement("button"); del.type="button"; del.textContent="削除"; del.className="small secondary";
+     del.addEventListener("click",()=>{if(confirm("この1行を削除しますか？")){savedRecords=savedRecords.filter(x=>x.id!==r.id);selectedRecordIds.delete(r.id);saveJSON(STORAGE_KEY,savedRecords);renderSavedTable()}});
+     actionTd.appendChild(del); tr.appendChild(actionTd); tbody.appendChild(tr);
+   });
+
+   table.appendChild(tbody); wrap.appendChild(table); body.appendChild(wrap); group.append(header,body); host.appendChild(group);
+ });
+ updateSelectionStatus();
+}
+function updateSelectionStatus(){$("selectionStatus").textContent=`${selectedRecordIds.size}件選択中`}
 function csvEscape(v){if(v===null||v===undefined||v==="")return"";return `"${String(v).replaceAll('"','""')}"`}
-function exportCSV(){
+function exportCSVRows(rows, filename="experiment_data.csv"){
  const header=["年月日","EXP No.","ケージ番号","色","水","餌","床敷き","感染週数","右足厚さ (mm)","右足幅 (mm)","左足厚さ (mm)","左足幅 (mm)","体重 (g)","計測時イソフルラン量 (µL)","投与時イソフルラン量 (µL)","使用シリンジ数 (本)","廃棄シリンジ数 (本)","投与期間","投与部位","投与薬剤","薬剤濃度 (µg/kg)","測定者","計測記録者","","備考"];
  const lines=[header.map(csvEscape).join(",")];
- savedRecords.forEach(r=>lines.push([r.date,r.expNo,r.cage,r.color,r.water,r.food,r.bedding,r.infectionWeeks,r.rightThickness,r.rightWidth,r.leftThickness,r.leftWidth,r.weight,r.isoMeasure,r.isoDose,r.syringesUsed,r.syringesDiscarded,r.dosingPeriod,r.dosingSite,r.dosingDrug,r.drugConcentration,r.measurer,r.recorder,"",r.memo].map(csvEscape).join(",")));
- downloadBlob("\uFEFF"+lines.join("\r\n"),"experiment_data.csv","text/csv;charset=utf-8")
+ rows.forEach(r=>lines.push([r.date,r.expNo,r.cage,r.color,r.water,r.food,r.bedding,r.infectionWeeks,r.rightThickness,r.rightWidth,r.leftThickness,r.leftWidth,r.weight,r.isoMeasure,r.isoDose,r.syringesUsed,r.syringesDiscarded,r.dosingPeriod,r.dosingSite,r.dosingDrug,r.drugConcentration,r.measurer,r.recorder,"",r.memo].map(csvEscape).join(",")));
+ downloadBlob("\uFEFF"+lines.join("\r\n"),filename,"text/csv;charset=utf-8")
+}
+function exportCSV(){exportCSVRows(savedRecords,"experiment_data.csv")}
+function exportSelectedCSV(){
+ const rows=savedRecords.filter(r=>selectedRecordIds.has(r.id));
+ if(rows.length===0){alert("出力するデータを選択してください。");return}
+ exportCSVRows(rows,"experiment_data_selected.csv")
 }
 function exportBackup(){downloadBlob(JSON.stringify({app:"experiment-data-v3",version:3,exportedAt:new Date().toISOString(),records:savedRecords},null,2),"experiment_backup.json","application/json")}
-async function importBackup(e){const f=e.target.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.records))throw 0;if(confirm(`バックアップから${d.records.length}件を読み込みます。現在の保存データは置き換わります。`)){savedRecords=d.records;saveJSON(STORAGE_KEY,savedRecords);renderSavedTable();alert("バックアップを読み込みました。")}}catch{alert("バックアップを読み込めませんでした。")}e.target.value=""}
+async function importBackup(e){const f=e.target.files?.[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.records))throw 0;if(confirm(`バックアップから${d.records.length}件を読み込みます。現在の保存データは置き換わります。`)){savedRecords=d.records;selectedRecordIds.clear();saveJSON(STORAGE_KEY,savedRecords);renderSavedTable();alert("バックアップを読み込みました。")}}catch{alert("バックアップを読み込めませんでした。")}e.target.value=""}
 function downloadBlob(c,n,t){const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
-$("csvButton").addEventListener("click",exportCSV);$("backupButton").addEventListener("click",exportBackup);$("restoreInput").addEventListener("change",importBackup);
+$("csvButton").addEventListener("click",exportCSV);
+$("selectedCsvButton").addEventListener("click",exportSelectedCSV);
+$("selectAllSaved").addEventListener("click",()=>{selectedRecordIds=new Set(savedRecords.map(r=>r.id));renderSavedTable()});
+$("clearSavedSelection").addEventListener("click",()=>{selectedRecordIds.clear();renderSavedTable()});
+$("backupButton").addEventListener("click",exportBackup);
+$("restoreInput").addEventListener("change",importBackup);
 $("commonDate").valueAsDate=new Date();renderSavedTable();
 
 function setAllPanels(containerId, open){
