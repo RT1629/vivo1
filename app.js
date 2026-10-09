@@ -17,7 +17,7 @@ function intBlank(v){if(v==="")return"";const n=Number(v);return Number.isFinite
 function dec2Blank(v){if(v==="")return"";const n=Number(v);return Number.isFinite(n)?n.toFixed(2):""}
 function normalizeAnimal(a){["rightThickness","rightWidth","leftThickness","leftWidth","weight"].forEach(k=>a[k]=dec2Blank(a[k]));["isoMeasure","isoDose","syringesUsed","syringesDiscarded"].forEach(k=>a[k]=intBlank(a[k]))}
 function showScreen(step){["stepCommon","stepMeasurement","stepDosing"].forEach(id=>$(id).classList.remove("active"));$(step===1?"stepCommon":step===2?"stepMeasurement":"stepDosing").classList.add("active");$("stepIndicator").textContent=`Step ${step} / 3`;window.scrollTo({top:0,behavior:"smooth"})}
-function setupSegmented(container,onChange){container.querySelectorAll("button").forEach(btn=>btn.addEventListener("click",()=>{container.querySelectorAll("button").forEach(b=>b.classList.remove("selected"));btn.classList.add("selected");onChange(btn.dataset.value)}))}
+function setupSegmented(container,onChange){container.querySelectorAll("button").forEach(btn=>btn.onclick=()=>{container.querySelectorAll("button").forEach(b=>b.classList.remove("selected"));btn.classList.add("selected");onChange(btn.dataset.value)})}
 function syncSegmented(container,value){container.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",b.dataset.value===value))}
 document.querySelectorAll(".segmented[data-group]").forEach(g=>setupSegmented(g,v=>selectedCommon[g.dataset.group]=v));
 function captureCommon(){session.common={date:$("commonDate").value,expNo:$("commonExpNo").value.trim(),infectionWeeks:$("commonInfectionWeeks").value,water:selectedCommon.water,food:selectedCommon.food,bedding:selectedCommon.bedding,memo:$("commonMemo").value.trim()}}

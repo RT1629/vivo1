@@ -97,7 +97,21 @@
       <p id="dosingCageProgress"></p>
       <div class="animal-summary" id="dosingCageSummary"></div>
 
-      <p class="hint">個体1で「投与部位」を選ぶと、未入力の個体へ自動反映します。個体ごとに後から変更できます。</p>
+      <div id="dosingCageDefaults" class="cage-dosing-defaults">
+        <h3>このケージの一括設定</h3>
+        <p class="hint">投与の有無は全個体に反映します。期間・部位・薬剤・濃度は「あり」の個体に反映し、後から個体ごとに変更できます。一括設定を変更すると、その項目を再反映します。</p>
+        <fieldset><legend>投与</legend>
+          <div class="segmented c-dosing-presence">
+            <button type="button" data-value="">未選択</button>
+            <button type="button" data-value="あり">あり</button>
+            <button type="button" data-value="なし">なし</button>
+          </div>
+        </fieldset>
+        <label>投与期間<select class="c-period"><option value="">未選択</option><option>投与中</option><option>感染のみ</option><option>投与開始</option><option>終了</option></select></label>
+        <label>投与部位<select class="c-site"><option value="">未選択</option><option>皮下</option><option>感染部位</option><option>経口</option><option>腹腔内</option></select></label>
+        <label>投与薬剤<select class="c-drug"><option value="">未選択</option><option>OnA</option><option>AmB</option></select></label>
+        <label>薬剤濃度<div class="unit-input"><input type="number" inputmode="decimal" step="any" class="c-conc"><span>µg/kg</span></div></label>
+      </div>
 
       <div class="collapse-controls">
         <button type="button" class="small secondary" id="collapseAllDosing">すべて閉じる</button>
