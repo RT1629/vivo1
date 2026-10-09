@@ -9,7 +9,7 @@ let currentMeasurementCage=0,currentDosingCage=0;
 const $=id=>document.getElementById(id);
 
 function animal(index=0){return{color:DEFAULT_COLORS[index]||"",measurer:"",recorder:"",isoMeasure:"",rightThickness:"",rightWidth:"",leftThickness:"",leftWidth:"",weight:"",measurementMemo:"",dosingPresence:"",isoDose:"",syringesUsed:"",syringesDiscarded:"",dosingPeriod:"",dosingSite:"",dosingDrug:"",drugConcentration:"",dosingMemo:""}}
-function cage(){return{cageNumber:"",animals:[animal(0)]}}
+function cage(){return{cageNumber:"",dosingDefaults:{dosingPresence:"",dosingPeriod:"",dosingSite:"",dosingDrug:"",drugConcentration:""},animals:[animal(0)]}}
 function createEmptySession(){return{common:{date:"",expNo:"",infectionWeeks:"",water:"",food:"",bedding:"",memo:""},cages:[cage()]}}
 function loadJSON(k,f){try{const v=localStorage.getItem(k);return v?JSON.parse(v):f}catch{return f}}
 function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
@@ -95,15 +95,43 @@ function dosingFieldsHtml(a,index){
  <label>廃棄シリンジ数<div class="unit-input"><input type="number" inputmode="numeric" step="1" class="d-syr-discarded"><span>本</span></div></label>
  </div>
  <label>投与期間<select class="d-period"><option value="">未選択</option><option>投与中</option><option>感染のみ</option><option>投与開始</option><option>終了</option></select></label>
- <label>投与部位<select class="d-site"><option value="">未選択</option><option>皮下</option><option>感染部位</option></select></label>
+ <label>投与部位<select class="d-site"><option value="">未選択</option><option>皮下</option><option>感染部位</option><option>経口</option><option>腹腔内</option></select></label>
  <label>投与薬剤<select class="d-drug"><option value="">未選択</option><option>OnA</option><option>AmB</option></select></label>
  <label>薬剤濃度<div class="unit-input"><input type="number" inputmode="decimal" step="any" class="d-conc"><span>µg/kg</span></div></label>`;
 }
 
+const COMMON_DOSING_FIELDS=["dosingPeriod","dosingSite","dosingDrug","drugConcentration"];
+const DOSING_DATA_FIELDS=["isoDose","syringesUsed","syringesDiscarded",...COMMON_DOSING_FIELDS];
+function applyCageDosing(c,key,value){
+  if(!c.dosingDefaults)c.dosingDefaults={};
+  c.dosingDefaults[key]=value;
+  c.animals.forEach(a=>{
+    if(key==="dosingPresence"){
+      a.dosingPresence=value;
+      if(value==="なし")DOSING_DATA_FIELDS.forEach(k=>a[k]="");
+      if(value==="あり")COMMON_DOSING_FIELDS.forEach(k=>a[k]=c.dosingDefaults[k]||"");
+    }else if(a.dosingPresence==="あり") a[key]=value;
+  });
+}
+function renderCageDosingDefaults(c){
+  const defaults=c.dosingDefaults||(c.dosingDefaults={dosingPresence:"",dosingPeriod:"",dosingSite:"",dosingDrug:"",drugConcentration:""});
+  const root=$("dosingCageDefaults");
+  const presence=root.querySelector(".c-dosing-presence");
+  setupSegmented(presence,v=>{applyCageDosing(c,"dosingPresence",v);renderDosing()});
+  syncSegmented(presence,defaults.dosingPresence||"");
+  const binding=[[".c-period","dosingPeriod"],[".c-site","dosingSite"],[".c-drug","dosingDrug"],[".c-conc","drugConcentration"]];
+  binding.forEach(([selector,key])=>{
+    const el=root.querySelector(selector);
+    el.value=defaults[key]??"";
+    // Using change avoids destroying the active input while typing.
+    el.onchange=()=>{applyCageDosing(c,key,el.value);renderDosing()};
+  });
+}
 function renderDosing(){
  const c=session.cages[currentDosingCage];
  $("dosingCageProgress").textContent=`ケージ ${currentDosingCage+1} / ${session.cages.length}`;
  $("dosingCageSummary").textContent=`ケージ番号：${c.cageNumber||"未入力"}｜${c.animals.length}匹`;
+  renderCageDosingDefaults(c);
  const host=$("dosingAnimals");host.innerHTML="";
  c.animals.forEach((a,index)=>{
    const node=$("dosingAnimalTemplate").content.cloneNode(true);
@@ -125,7 +153,8 @@ function renderDosing(){
    setupSegmented(presence,v=>{
      a.dosingPresence=v;
      refreshDosingSummary();
-     if(v==="なし")["isoDose","syringesUsed","syringesDiscarded","dosingPeriod","dosingSite","dosingDrug","drugConcentration"].forEach(k=>a[k]="");
+     if(v==="なし")DOSING_DATA_FIELDS.forEach(k=>a[k]="");
+    if(v==="あり")COMMON_DOSING_FIELDS.forEach(k=>{if(!a[k])a[k]=c.dosingDefaults?.[k]||""});
      renderDosing();
    });
    syncSegmented(presence,a.dosingPresence);
